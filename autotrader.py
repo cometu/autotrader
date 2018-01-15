@@ -16,10 +16,6 @@ import matplotlib.pyplot as plt
 import random
 from matplotlib import cm
 
-
-k = krakenex.API()
-
-
 def fetchKrakenOhlc(pair, interval, since=0):
     data1 = k.query_public('OHLC', {'pair': pair, 'interval': interval, 'since': since})
     data = data1['result'][pair]
@@ -80,7 +76,7 @@ def estimateShortProfits(data, signals, fee):
     return profit
 
 
-def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee, trainOnOpen=True, testOnOpen=False):
+def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee, trainOnOpen=True, testOnClose=False):
     if trainOnOpen is True:
         ema1 = pd.ewma(ohlcData.open, span=period1)
         ema2 = pd.ewma(ohlcData.open, span=period2)
@@ -96,9 +92,9 @@ def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee, trainOnOpen=T
     data = pd.DataFrame(columns=['time', 'value'])
     data.time = ohlcData.time
 
-    if testOnOpen is False:
+    if testOnClose is False:
         data.value = ohlcData.close
-    elif testOnOpen is True:
+    elif testOnClose is True:
         data.value = ohlcData.open
 
     profit = 0
@@ -117,39 +113,45 @@ p2Max = 50
 
 pair = 'XXBTZEUR'
 
+
+def brutforceEma(ohlcData, fee=0.0026,
+                 p1Min=1, p1Max=50, p2Min=1, p2Max=50,
+                 trainOnOpen=True, testOnClose=True):
+    result = pd.DataFrame(columns=['pair', 'interval', 'p1', 'p2', 'profit'])
+    for p2 in range(p2Min, p2Max):
+        for p1 in range(p1Min, p1Max):
+            profit = estimateProfitsOnOhlcUsingEma(p1, p2, d, fee=fee).values[0]
+            result = result.append(
+                {
+                    'pair': pair,
+                    'interval': interval,
+                    'p1': p1,
+                    'p2': p2,
+                    'profit': profit
+                },
+                ignore_index=True)
+
+    return result
+
 interval = 5
 d = fetchKrakenOhlc(pair=pair, interval=interval, since=0)
-pickle.dump(result, open(pair+"-"+str(interval)+".pkl", "wb"))
 duration_5 = (d.time.iloc[-1]-d.time.iloc[0])/3600
-for p2 in range(p2Min, p2Max):
-    for p1 in range(p1Min, p1Max):
-        profit = estimateProfitsOnOhlcUsingEma(p1, p2, d, fee=0.0026).values[0]
-        result = result.append({'pair': pair, 'interval': interval, 'p1': p1, 'p2': p2, 'profit': profit}, ignore_index=True)
+result = brutforceEma(d)
 
 interval = 15
 d = fetchKrakenOhlc(pair=pair, interval=interval, since=0)
 duration_15 = (d.time.iloc[-1]-d.time.iloc[0])/3600
-for p2 in range(p2Min, p2Max):
-    for p1 in range(p1Min, p1Max):
-        profit = estimateProfitsOnOhlcUsingEma(p1, p2, d, fee=0.0026).values[0]
-        result = result.append({'pair': pair, 'interval': interval, 'p1': p1, 'p2': p2, 'profit': profit}, ignore_index=True)
+result = result.append(brutforceEma(d))
 
 interval = 30
 d = fetchKrakenOhlc(pair=pair, interval=interval, since=0)
 duration_30 = (d.time.iloc[-1]-d.time.iloc[0])/3600
-for p2 in range(p2Min, p2Max):
-    for p1 in range(p1Min, p1Max):
-        profit = estimateProfitsOnOhlcUsingEma(p1, p2, d, fee=0.0026).values[0]
-        result = result.append({'pair': pair, 'interval': interval, 'p1': p1, 'p2': p2, 'profit': profit}, ignore_index=True)
+result = result.append(brutforceEma(d))
 
 interval = 60
 d = fetchKrakenOhlc(pair=pair, interval=interval, since=0)
 duration_60 = (d.time.iloc[-1]-d.time.iloc[0])/3600
-for p2 in range(p2Min, p2Max):
-    for p1 in range(p1Min, p1Max):
-        profit = estimateProfitsOnOhlcUsingEma(p1, p2, d, fee=0.0026).values[0]
-        result = result.append({'pair': pair, 'interval': interval, 'p1': p1, 'p2': p2, 'profit': profit}, ignore_index=True)
-
+result = result.append(brutforceEma(d))
 
 # Compute per hour profit
 r = result.copy()
