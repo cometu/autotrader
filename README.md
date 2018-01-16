@@ -6,11 +6,12 @@ Experimenting on automated trading.
 
 ## EMA based
 
-### Bias
+### Identified bias
  
 - Train and test on the same dataset.
 
-# TODO:
+# Todo
 
+- Train and test on two different dataset
 - Log more data
 - Add requirements python file
