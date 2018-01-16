@@ -78,7 +78,8 @@ def estimateShortProfits(data, signals, fee):
     return profit
 
 
-def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee, trainOnOpen=True, testOnClose=False):
+def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee,
+                                  trainOnOpen=True, testOnClose=False):
     if trainOnOpen is True:
         ema1 = pd.ewma(ohlcData.open, span=period1)
         ema2 = pd.ewma(ohlcData.open, span=period2)
@@ -86,7 +87,8 @@ def estimateProfitsOnOhlcUsingEma(period1, period2, ohlcData, fee, trainOnOpen=T
         ema1 = pd.ewma(ohlcData.close, span=period1)
         ema2 = pd.ewma(ohlcData.close, span=period2)
 
-    signals = pd.DataFrame(columns=['action'], index=ohlcData.loc[np.where(np.diff(np.sign((ema1-ema2))))[0]].index)
+    signals = pd.DataFrame(columns=['action'],
+                           index=ohlcData.loc[np.where(np.diff(np.sign((ema1-ema2))))[0]].index)
     signals.action = np.diff(np.sign((ema1-ema2)))[signals.index]
 
     data = pd.DataFrame(columns=['value'])
@@ -106,7 +108,7 @@ result = pd.DataFrame(columns=['pair', 'interval', 'p1', 'p2', 'profit'])
 pair = 'XXBTZEUR'
 
 
-def brutforceEma(ohlcData, fee=0.0026,
+def brutforceEma(ohlcData, fee=0.0026, trainDataShare=0.8,
                  p1Min=1, p1Max=50, p2Min=1, p2Max=50,
                  trainOnOpen=True, testOnClose=True):
     result = pd.DataFrame(columns=['p1', 'p2', 'profit'])
@@ -125,27 +127,5 @@ def brutforceEma(ohlcData, fee=0.0026,
                 ignore_index=True)
 
     return result
-
-
-# # Plot
-# def fun(p1, p2):
-#     ret = result[result.interval==5][(result[result.interval==5].p1 == p1) & (result[result.interval==5].p2 == p2)].profit.iloc[0]
-#     return ret
-
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-
-# x = y = range(1,50)
-# X, Y = np.meshgrid(x, y)
-# zs = np.array([fun(x,y) for x,y in zip(np.ravel(X), np.ravel(Y))])
-# Z = zs.reshape(X.shape)
-
-# ax.plot_surface(X, Y, Z)
-
-# ax.set_xlabel('p1')
-# ax.set_ylabel('p2')
-# ax.set_zlabel('profit')
-
-# plt.show()
 
 
