@@ -13,3 +13,4 @@ Experimenting on automated trading.
 # TODO:
 
 - Log more data
+- Add requirements python file
