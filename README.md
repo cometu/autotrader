@@ -14,4 +14,3 @@ Experimenting on automated trading.
 
 - Train and test on two different dataset
 - Log more data
-- Add requirements python file
