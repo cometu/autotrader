@@ -35,6 +35,7 @@ def fetchKrakenRecentTrades(krakenApi, pair, since=0):
     last = data1['result']['last']
     df = pd.DataFrame(data)
     df.columns = ['price', 'volume', 'time', 'buy/sell', 'market/limit', 'misc']
+    df = df.apply(pd.to_numeric)
     return df, last
 
 def estimateLongProfits(data, signals, fee):
