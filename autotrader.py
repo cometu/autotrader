@@ -25,6 +25,17 @@ def fetchKrakenOhlc(krakenApi, pair, interval, since=0):
     df = df.apply(pd.to_numeric)
     return df
 
+# Fetch Kraken Recent trades
+# Returns the trades hostory for a given currency pair, since a specified timestamp
+# this timestamp is expressed in ns, to obtain a timestamps from time.time(), it has to be multiplicated by 10^9
+# Returns a tuple with a df containing trades data & the id (timestamp in ns) of the last fetched trade
+def fetchKrakenRecentTrades(krakenApi, pair, since=0):
+    data1 = krakenApi.query_public('Trades', {'pair': pair, 'since': since})
+    data = data1['result'][pair]
+    last = data1['result']['last']
+    df = pd.DataFrame(data)
+    df.columns = ['price', 'volume', 'time', 'buy/sell', 'market/limit', 'misc']
+    return df, last
 
 def estimateLongProfits(data, signals, fee):
     profit = 0
