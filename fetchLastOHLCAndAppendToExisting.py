@@ -24,8 +24,9 @@ def avoidApiCallExcess(lastApiCallTime, apiCount, increment, maxApiCount=13):
     return newTime, newApiCount
 
 
-def run():
+def run(krakenApi):
 
+    k = krakenApi
     intervals = [1, 5, 15, 30, 60, 240, 1440, 10080, 21600]
 
     pairs = ['BCHEUR', 'DASHEUR',
