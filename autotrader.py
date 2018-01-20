@@ -2,8 +2,6 @@ import krakenex
 import pandas as pd
 import pickle
 import numpy as np
-from matplotlib.finance import candlestick2_ochl
-import matplotlib.pyplot as plt
 
 import time
 import datetime
@@ -11,11 +9,7 @@ import datetime
 import urllib
 import json
 
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 import random
-from matplotlib import cm
-
 
 def fetchKrakenOhlc(krakenApi, pair, interval, since=0):
     data1 = krakenApi.query_public('OHLC', {'pair': pair, 'interval': interval, 'since': since})
